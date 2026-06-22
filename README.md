@@ -1,11 +1,11 @@
-# 3D Motion Skills
+# WebGL Animation Skills
 
-> 3D motion / WebGL skills for AI coding agents — Three.js scenes, GLSL shaders, and particle systems, off the core 2D/Lottie path.
+> WebGL animation skills for AI coding agents — Three.js scenes, GLSL shaders, and particle systems, off the core 2D/Lottie path.
 
 ## Install
 
 ```bash
-npx skills add iart-ai/3d-motion-skills
+npx skills add iart-ai/webgl-animation-skills
 ```
 
 Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
@@ -40,13 +40,13 @@ Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 ## Topics
 
-`3d-animation` `webgl` `glsl-shaders` `threejs` `particle-system` `motion-graphics` `claude-skill`
+`webgl` `webgl-animation` `threejs` `glsl-shaders` `particle-system` `3d-animation` `motion-graphics` `claude-skill`
 
 ## More packs
 
 Part of an 11-pack open-source collection — install only what you need. Full hub: **[github.com/iart-ai](https://github.com/iart-ai)**
 
-[short-form-video-skills](https://github.com/iart-ai/short-form-video-skills) (Reels / TikTok / Shorts) · [creator-channel-skills](https://github.com/iart-ai/creator-channel-skills) (Podcasters & YouTubers) · [ecommerce-video-skills](https://github.com/iart-ai/ecommerce-video-skills) (E-commerce sellers) · [ad-video-skills](https://github.com/iart-ai/ad-video-skills) (Brand advertisers) · [data-video-skills](https://github.com/iart-ai/data-video-skills) (Analysts & PMs) · [explainer-video-skills](https://github.com/iart-ai/explainer-video-skills) (Educators) · [web-animation-skills](https://github.com/iart-ai/web-animation-skills) (Frontend devs) · [motion-design-skills](https://github.com/iart-ai/motion-design-skills) (Motion designers) · [motion-business-skills](https://github.com/iart-ai/motion-business-skills) (Freelancers & studios) · [manim-skills](https://github.com/iart-ai/manim-skills) (Math / educational)
+[tiktok-video-skills](https://github.com/iart-ai/tiktok-video-skills) (TikTok / Reels / Shorts) · [youtube-video-skills](https://github.com/iart-ai/youtube-video-skills) (Podcasters & YouTubers) · [ecommerce-video-skills](https://github.com/iart-ai/ecommerce-video-skills) (E-commerce sellers) · [ad-video-skills](https://github.com/iart-ai/ad-video-skills) (Brand advertisers) · [data-animation-skills](https://github.com/iart-ai/data-animation-skills) (Analysts & PMs) · [explainer-video-skills](https://github.com/iart-ai/explainer-video-skills) (Educators) · [web-animation-skills](https://github.com/iart-ai/web-animation-skills) (Frontend devs) · [motion-design-skills](https://github.com/iart-ai/motion-design-skills) (Motion designers) · [freelance-motion-skills](https://github.com/iart-ai/freelance-motion-skills) (Freelancers & studios) · [manim-skills](https://github.com/iart-ai/manim-skills) (Math / educational)
 
 
 ## License
