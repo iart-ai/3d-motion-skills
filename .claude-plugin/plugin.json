@@ -1,0 +1,22 @@
+{
+  "name": "webgl-animation-skills",
+  "version": "0.1.0",
+  "description": "WebGL animation skills for AI coding agents — Three.js scenes, GLSL shaders, and particle systems, off the core 2D/Lottie path.",
+  "author": {
+    "name": "iart.ai",
+    "url": "https://iart.ai"
+  },
+  "homepage": "https://iart.ai",
+  "repository": "https://github.com/iart-ai/webgl-animation-skills",
+  "license": "MIT",
+  "keywords": [
+    "webgl",
+    "webgl-animation",
+    "threejs",
+    "glsl-shaders",
+    "particle-system",
+    "3d-animation",
+    "motion-graphics",
+    "claude-skill"
+  ]
+}

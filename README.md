@@ -10,15 +10,23 @@
 npx skills add iart-ai/webgl-animation-skills
 ```
 
+Or add it as a Claude Code plugin marketplace:
+
+```bash
+/plugin marketplace add iart-ai/webgl-animation-skills
+```
+
+then `/plugin install webgl-animation-skills`.
+
 Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 ## What's included
 
 | Skill | What it does |
 |-------|--------------|
-| [shader-glsl](./shader-glsl) | Write GLSL fragment shaders — gradients, noise/fbm, SDFs, domain warping, image transitions, and Three.js ShaderMaterial wiring. |
-| [threejs-animation](./threejs-animation) | Build web 3D motion — scenes, camera moves, GLTF clips, instancing, scroll-linked 3D, React Three Fiber, and leak-free GPU disposal. |
-| [particle-system](./particle-system) | Drive emergent motion — confetti/snow/smoke/sparks, flow fields, curl noise, connected-dot networks, and GPU `Points` shaders. |
+| [shader-glsl](./skills/shader-glsl) | Write GLSL fragment shaders — gradients, noise/fbm, SDFs, domain warping, image transitions, and Three.js ShaderMaterial wiring. |
+| [threejs-animation](./skills/threejs-animation) | Build web 3D motion — scenes, camera moves, GLTF clips, instancing, scroll-linked 3D, React Three Fiber, and leak-free GPU disposal. |
+| [particle-system](./skills/particle-system) | Drive emergent motion — confetti/snow/smoke/sparks, flow fields, curl noise, connected-dot networks, and GPU `Points` shaders. |
 
 *Need editable, repeatable motion graphics instead — exact text and numbers, brand-locked, one-click edits? [iart.ai](https://iart.ai) is the AI motion agent that produces these from a prompt or data.*
 
