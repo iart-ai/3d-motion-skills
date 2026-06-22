@@ -1,6 +1,6 @@
 ---
 name: threejs-motion
-description: This skill should be used when the user asks to "build a 3D hero section or WebGL background", "animate a Three.js scene", "play or crossfade GLTF animation clips", "move/lerp the camera or link it to scroll", "render thousands of objects with InstancedMesh", "set up React Three Fiber (R3F) motion", "add bloom/DOF post-processing", "fix a Three.js memory leak", "dispose geometries / materials / textures", "stop VRAM growing in React Three Fiber", "clean up Three.js objects on unmount", or "free GPU memory in R3F". Covers scenes, render loops, camera moves, GLTF AnimationMixer, instancing, scroll-linked 3D, R3F, performance, and GPU resource disposal.
+description: This skill should be used when the user asks to "build a 3D hero section or WebGL background", "animate a Three.js scene", "play or crossfade GLTF animation clips", "move/lerp the camera or link it to scroll", "render thousands of objects with InstancedMesh", "set up React Three Fiber (R3F) motion", "add bloom/DOF post-processing", or "keep a Three.js/R3F animation smooth and leak-free (dispose geometries/materials/textures, free GPU memory on unmount)". Covers scenes, render loops, camera moves, GLTF AnimationMixer, instancing, scroll-linked 3D, R3F, and animation performance/disposal.
 version: 0.1.0
 ---
 
