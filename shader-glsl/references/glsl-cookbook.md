@@ -217,3 +217,6 @@ In Three.js, ShaderMaterial uses GLSL3 when you pass `glslVersion: THREE.GLSL3`.
 - `mediump float` has ~10-bit mantissa; large UV coordinates (e.g. `uv * 1000.0`) lose precision and produce visible stepping. Use `highp` for noise domains or keep coordinates small.
 - `fwidth` requires the `OES_standard_derivatives` extension in WebGL1 — enable with `#extension GL_OES_standard_derivatives : enable`. Always available in WebGL2.
 - Render heavy fbm/domain-warp shaders to a half-resolution `WebGLRenderTarget` and upscale; the noise hides the resolution loss.
+
+---
+Build from noise, palettes, and SDFs and a fragment shader paints anything. Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.
