@@ -22,4 +22,4 @@ Build real-time 3D motion for the web — animated scenes, camera moves, GLTF pl
 - `references/resource-disposal.md` — complete GPU disposal utility, EffectComposer teardown, R3F leak cases with the useMemo+cleanup pattern, a `renderer.info` leak-test harness, and HMR safety.
 
 ---
-Part of **[3D Motion Skills](../)** · Built by **[iart.ai](https://iart.ai)** — controllable Motion Graphics MP4 from a prompt or data.
+Part of **[3D Motion Skills](../)** · Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.

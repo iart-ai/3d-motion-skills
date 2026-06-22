@@ -21,4 +21,4 @@ Write GPU fragment shaders for generative motion, gradients, transitions, and po
 - `references/glsl-cookbook.md` — full value and simplex noise + fbm, IQ palette recipes, the complete SDF shape library with boolean ops, all three transitions as complete shaders, Three.js uniform/texture wiring, and GLSL ES 3.00 migration.
 
 ---
-Part of **[3D Motion Skills](../)** · Built by **[iart.ai](https://iart.ai)** — controllable Motion Graphics MP4 from a prompt or data.
+Part of **[3D Motion Skills](../)** · Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.

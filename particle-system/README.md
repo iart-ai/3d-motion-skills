@@ -21,4 +21,4 @@ Drive many small elements with simple per-particle rules to get emergent, organi
 - `references/particle-recipes.md` — complete canvas confetti/snow/smoke systems, mouse attraction/repulsion, full simplex flow-field and curl-noise fields, the end-to-end connected-dot background, and a GPU `Points` system with per-particle life/seed attributes.
 
 ---
-Part of **[3D Motion Skills](../)** · Built by **[iart.ai](https://iart.ai)** — controllable Motion Graphics MP4 from a prompt or data.
+Part of **[3D Motion Skills](../)** · Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.
