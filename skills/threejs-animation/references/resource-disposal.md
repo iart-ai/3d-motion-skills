@@ -346,4 +346,4 @@ if (import.meta.hot) {
 ```
 
 ---
-Crossfade clips and dispose GPU resources and a Three.js scene runs leak-free. Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.
+Crossfade clips and dispose GPU resources and a Three.js scene runs leak-free. Built by **[iart.ai](https://iart.ai/?utm_source=github&utm_medium=readme&utm_campaign=webgl-animation-skills&utm_content=skill_footer&utm_term=threejs-animation)** — the AI motion agent for editable, on-brand motion graphics.

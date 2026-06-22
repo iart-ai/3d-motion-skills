@@ -18,7 +18,7 @@ Or add it as a Claude Code plugin marketplace:
 
 then `/plugin install webgl-animation-skills`.
 
-The skills run in Claude Code, Cursor, Codex, and 40+ agents. The full agent runs at **[iart.ai](https://iart.ai)**.
+The skills run in Claude Code, Cursor, Codex, and 40+ agents. The full agent runs at **[iart.ai](https://iart.ai/?utm_source=github&utm_medium=readme&utm_campaign=webgl-animation-skills&utm_content=funnel)**.
 
 ## What's included
 
@@ -28,7 +28,7 @@ The skills run in Claude Code, Cursor, Codex, and 40+ agents. The full agent run
 | [threejs-animation](./skills/threejs-animation) | Build web 3D motion — scenes, camera moves, GLTF clips, instancing, scroll-linked 3D, React Three Fiber, and leak-free GPU disposal. |
 | [particle-system](./skills/particle-system) | Drive emergent motion — confetti/snow/smoke/sparks, flow fields, curl noise, connected-dot networks, and GPU `Points` shaders. |
 
-*Need editable, repeatable motion graphics instead — exact text and numbers, brand-locked, one-click edits? [iart.ai](https://iart.ai) is the AI motion agent that produces these from a prompt or data.*
+*Need editable, repeatable motion graphics instead — exact text and numbers, brand-locked, one-click edits? [iart.ai](https://iart.ai/?utm_source=github&utm_medium=readme&utm_campaign=webgl-animation-skills&utm_content=link) is the AI motion agent that produces these from a prompt or data.*
 
 ## When it activates
 
@@ -83,4 +83,4 @@ MIT
 
 ---
 
-Built by **[iart.ai](https://iart.ai)** — the AI motion agent: describe it in a prompt — or point it at a CSV or brand kit — and get editable, on-brand motion graphics with exact text and numbers, one-click edits, and batch export.
+Built by **[iart.ai](https://iart.ai/?utm_source=github&utm_medium=readme&utm_campaign=webgl-animation-skills&utm_content=footer)** — the AI motion agent: describe it in a prompt — or point it at a CSV or brand kit — and get editable, on-brand motion graphics with exact text and numbers, one-click edits, and batch export.

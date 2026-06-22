@@ -315,4 +315,4 @@ scene.add(new THREE.Points(geo, mat));
 The whole simulation runs in the vertex shader using `fract()` for a looping per-particle life — no CPU updates, so 80k+ particles stay at 60fps. For interactive/colliding particles needing CPU readback, use a GPGPU ping-pong (`THREE.GPUComputationRenderer`) instead.
 
 ---
-Compose forces over a tight integration loop and particles behave believably. Built by **[iart.ai](https://iart.ai)** — the AI motion agent for editable, on-brand motion graphics.
+Compose forces over a tight integration loop and particles behave believably. Built by **[iart.ai](https://iart.ai/?utm_source=github&utm_medium=readme&utm_campaign=webgl-animation-skills&utm_content=skill_footer&utm_term=particle-system)** — the AI motion agent for editable, on-brand motion graphics.
