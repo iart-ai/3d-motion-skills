@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebGL Animation · GSAP · Particles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" media="print" onload="this.media='all'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap"></noscript>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg:     #04060f;
+    --bg2:    #070b1c;
+    --cyan:   #18f0ff;
+    --mag:    #ff2da0;
+    --violet: #8a5cff;
+    --lime:   #aaff2e;
+    --white:  #eafcff;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: 'Rajdhani', sans-serif;
+  }
+
+  #stage {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(130% 130% at 50% 35%, #0a1230 0%, var(--bg2) 45%, var(--bg) 100%);
+    perspective: 1400px;
+    overflow: hidden;
+  }
+
+  /* particle / glow canvases */
+  #field, #glow {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  #glow { z-index: 1; opacity: 0.9; }
+  #field { z-index: 2; }
+
+  .scene {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    will-change: transform, opacity;
+    z-index: 6;
+  }
+
+  .line {
+    display: flex;
+    gap: 0 0.04em;
+    justify-content: center;
+    overflow: visible;
+    padding: 0.04em 0;
+  }
+
+  .word {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.4rem, 12vw, 9.5rem);
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    text-transform: uppercase;
+    white-space: nowrap;
+    will-change: transform, opacity;
+  }
+
+  .char { display: inline-block; will-change: transform, opacity; }
+
+  .cyan   { color: var(--cyan);  text-shadow: 0 0 18px var(--cyan),  0 0 44px rgba(24,240,255,.55); }
+  .mag    { color: var(--mag);   text-shadow: 0 0 18px var(--mag),   0 0 44px rgba(255,45,160,.55); }
+  .violet { color: var(--violet);text-shadow: 0 0 18px var(--violet),0 0 44px rgba(138,92,255,.55); }
+  .lime   { color: var(--lime);  text-shadow: 0 0 18px var(--lime),  0 0 44px rgba(170,255,46,.5); }
+  .glowy  { text-shadow: 0 0 20px rgba(234,252,255,.85), 0 0 52px rgba(24,240,255,.45); }
+
+  .kicker {
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: clamp(0.65rem, 1.6vw, 1rem);
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    text-indent: 0.5em;
+    text-shadow: 0 0 14px rgba(24,240,255,.6);
+  }
+
+  .mega {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(2.6rem, 13.5vw, 11rem);
+    line-height: 0.86;
+    letter-spacing: 0.01em;
+  }
+
+  .brandmark {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    text-transform: lowercase;
+    font-size: clamp(3rem, 16vw, 13rem);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+    color: var(--white);
+    text-shadow: 0 0 24px rgba(234,252,255,.7), 0 0 60px rgba(138,92,255,.45);
+  }
+  .brandmark .mag { color: var(--mag); }
+
+  /* finale decorative rings / scanline */
+  .ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1.5px solid rgba(24,240,255,.5);
+    box-shadow: 0 0 30px rgba(24,240,255,.35), inset 0 0 30px rgba(24,240,255,.15);
+    z-index: 3;
+    will-change: transform, opacity;
+  }
+
+  /* transition overlay panels */
+  #fx {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 45;
+    overflow: hidden;
+  }
+  .panel {
+    position: absolute;
+    will-change: transform;
+    visibility: hidden;
+  }
+
+  #flash {
+    position: fixed;
+    inset: 0;
+    background: var(--white);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+    mix-blend-mode: screen;
+  }
+
+  /* film grain */
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.07;
+    mix-blend-mode: screen;
+    z-index: 60;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* progress line */
+  #progress {
+    position: fixed;
+    left: 0; bottom: 0;
+    height: 3px;
+    width: 100%;
+    transform: scaleX(0);
+    transform-origin: left;
+    background: linear-gradient(90deg, var(--cyan), var(--mag), var(--violet));
+    box-shadow: 0 0 12px rgba(24,240,255,.7);
+    z-index: 70;
+  }
+
+  .ui {
+    position: fixed;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    z-index: 80;
+    color: #6f7da6;
+  }
+  #brand { top: 22px; left: 24px; color: #9fb2e6; text-shadow: 0 0 10px rgba(24,240,255,.4); }
+  #replay {
+    bottom: 18px; right: 22px;
+    background: rgba(10,18,48,.4);
+    border: 1.5px solid rgba(24,240,255,.35);
+    border-radius: 999px;
+    padding: 9px 18px;
+    cursor: pointer;
+    color: #bfe9ff;
+    backdrop-filter: blur(4px);
+    transition: color .2s, border-color .2s, background .2s, box-shadow .2s;
+  }
+  #replay:hover { color: var(--bg); background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 20px rgba(24,240,255,.6); }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <canvas id="glow"></canvas>
+    <canvas id="field"></canvas>
+
+    <!-- Scene 1 : kicker + intro -->
+    <div class="scene" id="s1">
+      <div class="line"><span class="kicker">Realtime&nbsp;&nbsp;Graphics&nbsp;&nbsp;Engine</span></div>
+      <div class="line"><span class="word glowy">ENTER</span></div>
+      <div class="line"><span class="word cyan">THE&nbsp;FIELD</span></div>
+    </div>
+
+    <!-- Scene 2 : SHADERS -->
+    <div class="scene" id="s2">
+      <div class="line"><span class="word mega cyan">SHADERS</span></div>
+    </div>
+
+    <!-- Scene 3 : PARTICLES -->
+    <div class="scene" id="s3">
+      <div class="line"><span class="word mega mag">PARTICLES</span></div>
+    </div>
+
+    <!-- Scene 4 : 3D -->
+    <div class="scene" id="s4">
+      <div class="line"><span class="word mega violet">3D</span></div>
+      <div class="line"><span class="kicker">Volumetric&nbsp;&nbsp;·&nbsp;&nbsp;Additive&nbsp;&nbsp;·&nbsp;&nbsp;GPU</span></div>
+    </div>
+
+    <!-- Scene 5 : burst bridge -->
+    <div class="scene" id="s5">
+      <div class="line"><span class="word mega lime">IGNITE</span></div>
+    </div>
+
+    <!-- Scene 6 : brand finale -->
+    <div class="scene" id="s6">
+      <div class="line"><span class="word mega glowy">WEBGL</span></div>
+      <div class="line"><span class="word mega cyan">ANIMATION</span></div>
+      <div class="line"><span class="word brandmark">iart<span class="mag">.</span>ai</span></div>
+    </div>
+
+    <div class="ring" id="ring1"></div>
+    <div class="ring" id="ring2"></div>
+  </div>
+
+  <!-- creative transition overlays -->
+  <div id="fx">
+    <div class="panel" id="p1"></div>
+    <div class="panel" id="p2"></div>
+    <div class="panel" id="p3"></div>
+    <div class="panel" id="p4"></div>
+  </div>
+
+  <div id="flash"></div>
+  <div class="grain"></div>
+  <div id="progress"></div>
+  <div class="ui" id="brand">◆ iart.ai</div>
+  <button class="ui" id="replay">↻ Replay</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* ============================================================
+   CANVAS PARTICLE FIELD  —  hand-written 2D, additive glow
+   ============================================================ */
+const fieldC = document.getElementById('field');
+const glowC  = document.getElementById('glow');
+const fctx = fieldC.getContext('2d');
+const gctx = glowC.getContext('2d');
+
+let W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+function resize() {
+  W = window.innerWidth; H = window.innerHeight;
+  [fieldC, glowC].forEach(c => {
+    c.width  = W * DPR;
+    c.height = H * DPR;
+    c.style.width = W + 'px';
+    c.style.height = H + 'px';
+  });
+  fctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  gctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  buildTextTargets();
+}
+window.addEventListener('resize', resize);
+
+const PALETTE = ['#18f0ff', '#ff2da0', '#8a5cff', '#aaff2e', '#eafcff'];
+const N = 1500;
+let particles = [];
+
+function rand(a, b) { return a + Math.random() * (b - a); }
+
+function makeParticle() {
+  const ang = rand(0, Math.PI * 2);
+  return {
+    x: rand(0, W), y: rand(0, H),
+    // home / orbit anchor for the flowing field
+    hx: rand(0, W), hy: rand(0, H),
+    vx: 0, vy: 0,
+    // text target (filled when coalescing)
+    tx: 0, ty: 0,
+    size: rand(0.7, 2.4),
+    base: rand(0.7, 2.4),
+    color: PALETTE[(Math.random() * PALETTE.length) | 0],
+    seed: rand(0, 1000),
+    spd: rand(0.4, 1.2),
+    mode: 'swarm',   // swarm | gather | burst
+    mix: 0,          // 0 swarm  ->  1 gather
+    burstX: 0, burstY: 0
+  };
+}
+function seedParticles() {
+  particles = [];
+  for (let i = 0; i < N; i++) particles.push(makeParticle());
+}
+
+/* ---- build text outline sample points from offscreen canvas ---- */
+let textTargets = [];   // current active target set
+let targetSets = {};    // cached keyword -> points
+
+function sampleText(text, font) {
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const o = off.getContext('2d');
+  o.fillStyle = '#fff';
+  o.textAlign = 'center';
+  o.textBaseline = 'middle';
+  let size = Math.min(W * 0.22, 260);
+  o.font = `900 ${size}px Orbitron, sans-serif`;
+  // shrink to fit width
+  while (o.measureText(text).width > W * 0.86 && size > 20) {
+    size -= 6;
+    o.font = `900 ${size}px Orbitron, sans-serif`;
+  }
+  o.fillText(text, W / 2, H / 2);
+  const data = o.getImageData(0, 0, W, H).data;
+  const pts = [];
+  const step = Math.max(5, Math.round(W / 380));
+  for (let y = 0; y < H; y += step) {
+    for (let x = 0; x < W; x += step) {
+      if (data[(y * W + x) * 4 + 3] > 128) pts.push({ x, y });
+    }
+  }
+  return pts;
+}
+
+function buildTextTargets() {
+  targetSets = {};
+  ['SHADERS', 'PARTICLES', 'WEBGL'].forEach(w => {
+    targetSets[w] = sampleText(w, 900);
+  });
+}
+
+let gatherKey = 'SHADERS';
+function assignTargets(key) {
+  gatherKey = key;
+  const pts = targetSets[key] || [];
+  if (!pts.length) return;
+  for (let i = 0; i < particles.length; i++) {
+    const p = pts[i % pts.length];
+    particles[i].tx = p.x + rand(-2, 2);
+    particles[i].ty = p.y + rand(-2, 2);
+  }
+}
+
+/* ---- field controls driven by GSAP timeline ---- */
+const FX = {
+  gather: 0,       // 0 = free swarm, 1 = locked to text
+  burst: 0,        // 0 = none, 1 = full explosion energy
+  flow: 1,         // flow-field strength
+  glow: 1,         // glow intensity multiplier
+  hue: 0,          // not used directly; per-particle color
+  swirl: 1
+};
+
+let burstSeeded = false;
+function seedBurst() {
+  for (const p of particles) {
+    const a = rand(0, Math.PI * 2);
+    const s = rand(3, 16);
+    p.burstX = Math.cos(a) * s;
+    p.burstY = Math.sin(a) * s;
+  }
+  burstSeeded = true;
+}
+
+let t = 0;
+function step() {
+  t += 0.016;
+
+  // trailing fade — gives motion trails without full clear
+  fctx.globalCompositeOperation = 'source-over';
+  fctx.fillStyle = 'rgba(4,6,15,0.30)';
+  fctx.fillRect(0, 0, W, H);
+
+  // glow canvas fades faster, soft halo layer
+  gctx.globalCompositeOperation = 'source-over';
+  gctx.fillStyle = 'rgba(4,6,15,0.22)';
+  gctx.fillRect(0, 0, W, H);
+
+  fctx.globalCompositeOperation = 'lighter';
+  gctx.globalCompositeOperation = 'lighter';
+
+  const cx = W / 2, cy = H / 2;
+  const gather = FX.gather, burst = FX.burst;
+
+  if (burst > 0.01 && !burstSeeded) seedBurst();
+  if (burst < 0.01) burstSeeded = false;
+
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+
+    // --- flow-field swarm velocity (curl-ish noise via sines) ---
+    const fx = Math.sin(p.y * 0.0042 + t * 0.7 * FX.swirl + p.seed) +
+               Math.cos(p.x * 0.0030 - t * 0.5);
+    const fy = Math.cos(p.x * 0.0040 - t * 0.6 * FX.swirl + p.seed) +
+               Math.sin(p.y * 0.0028 + t * 0.45);
+    let ax = fx * 0.16 * FX.flow;
+    let ay = fy * 0.16 * FX.flow;
+
+    // gentle pull toward orbiting home so the field stays on screen
+    ax += (p.hx - p.x) * 0.0009;
+    ay += (p.hy - p.y) * 0.0009;
+    // slow orbit of home anchors around center -> drifting swarm
+    const ha = t * 0.05 * p.spd;
+    p.hx += Math.cos(ha + p.seed) * 0.25;
+    p.hy += Math.sin(ha + p.seed) * 0.25;
+
+    // --- gather toward text target ---
+    if (gather > 0.001) {
+      ax += (p.tx - p.x) * 0.05 * gather;
+      ay += (p.ty - p.y) * 0.05 * gather;
+    }
+
+    // --- burst impulse outward ---
+    if (burst > 0.001) {
+      ax += p.burstX * burst * 0.9;
+      ay += p.burstY * burst * 0.9;
+      // a little outward push from center
+      ax += (p.x - cx) * 0.0016 * burst;
+      ay += (p.y - cy) * 0.0016 * burst;
+    }
+
+    p.vx = (p.vx + ax) * (gather > 0.4 ? 0.78 : 0.92);
+    p.vy = (p.vy + ay) * (gather > 0.4 ? 0.78 : 0.92);
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // wrap softly on swarm mode
+    if (gather < 0.3 && burst < 0.3) {
+      if (p.x < -20) { p.x = W + 20; p.hx = p.x; }
+      if (p.x > W + 20) { p.x = -20; p.hx = p.x; }
+      if (p.y < -20) { p.y = H + 20; p.hy = p.y; }
+      if (p.y > H + 20) { p.y = -20; p.hy = p.y; }
+    }
+
+    const spd = Math.min(6, Math.hypot(p.vx, p.vy));
+    const sz = (p.base + spd * 0.25) * (1 + gather * 0.5);
+
+    // core dot (sharp)
+    fctx.fillStyle = p.color;
+    fctx.beginPath();
+    fctx.arc(p.x, p.y, sz, 0, Math.PI * 2);
+    fctx.fill();
+
+    // soft glow halo (sampled subset for perf)
+    if ((i & 1) === 0) {
+      const gr = sz * (3.2 + FX.glow * 1.5);
+      const grad = gctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, gr);
+      grad.addColorStop(0, p.color);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      gctx.globalAlpha = 0.5 * FX.glow;
+      gctx.fillStyle = grad;
+      gctx.beginPath();
+      gctx.arc(p.x, p.y, gr, 0, Math.PI * 2);
+      gctx.fill();
+      gctx.globalAlpha = 1;
+    }
+  }
+
+  // glowing grid lines (additive) — perspective-ish horizon
+  drawGrid();
+
+  requestAnimationFrame(step);
+}
+
+function drawGrid() {
+  const g = FX.gridAlpha || 0;
+  if (g <= 0.001) return;
+  gctx.save();
+  gctx.globalCompositeOperation = 'lighter';
+  gctx.strokeStyle = `rgba(24,240,255,${0.16 * g})`;
+  gctx.lineWidth = 1;
+  const horizon = H * 0.62;
+  const cx = W / 2;
+  // verticals converging to vanishing point
+  for (let i = -10; i <= 10; i++) {
+    gctx.beginPath();
+    gctx.moveTo(cx + i * (W / 9), H + 40);
+    gctx.lineTo(cx + i * 22, horizon);
+    gctx.stroke();
+  }
+  // horizontals receding
+  for (let j = 0; j < 12; j++) {
+    const f = j / 11;
+    const y = horizon + Math.pow(f, 2.2) * (H - horizon) * 1.1;
+    if (y > H + 40) break;
+    gctx.beginPath();
+    gctx.moveTo(0, y);
+    gctx.lineTo(W, y);
+    gctx.globalAlpha = (1 - f) * g;
+    gctx.stroke();
+  }
+  gctx.globalAlpha = 1;
+  gctx.restore();
+}
+
+resize();
+seedParticles();
+assignTargets('SHADERS');
+requestAnimationFrame(step);
+
+/* ============================================================
+   TEXT SPLITTING
+   ============================================================ */
+function splitChars(word) {
+  const text = word.textContent;
+  word.textContent = '';
+  const chars = [];
+  for (const ch of text) {
+    const span = document.createElement('span');
+    span.className = 'char';
+    span.innerHTML = (ch === ' ') ? '&nbsp;' : ch;
+    word.appendChild(span);
+    if (ch !== ' ') chars.push(span);
+  }
+  return chars;
+}
+document.querySelectorAll('.word:not(.brandmark)').forEach(splitChars);
+
+function splitBrand(el) {
+  const html = el.innerHTML;
+  el.innerHTML = '';
+  const tmp = document.createElement('div');
+  tmp.innerHTML = html;
+  tmp.childNodes.forEach(node => {
+    const isDot = node.nodeType === 1;
+    const text = node.textContent;
+    for (const ch of text) {
+      const span = document.createElement('span');
+      span.className = 'char' + (isDot ? ' mag' : '');
+      span.textContent = ch;
+      el.appendChild(span);
+    }
+  });
+}
+document.querySelectorAll('.brandmark').forEach(splitBrand);
+
+const charsOf = (sel) => gsap.utils.toArray(sel + ' .char');
+
+gsap.set('.scene', { autoAlpha: 0 });
+gsap.set(['.ring'], { autoAlpha: 0 });
+
+/* ============================================================
+   MASTER TIMELINE  (~7.8s, 6 beats, varied transitions)
+   ============================================================ */
+function build() {
+  // reset field state
+  FX.gather = 0; FX.burst = 0; FX.flow = 1; FX.glow = 1; FX.swirl = 1; FX.gridAlpha = 0;
+
+  const tl = gsap.timeline({ defaults: { ease: 'power4.out' } });
+
+  // progress bar across full timeline
+  tl.fromTo('#progress', { scaleX: 0 }, { scaleX: 1, duration: 7.8, ease: 'none' }, 0);
+
+  // ambient grid breathes in early and lingers softly
+  tl.to(FX, { gridAlpha: 0.9, duration: 1.2, ease: 'sine.out' }, 0.1)
+    .to(FX, { gridAlpha: 0.35, duration: 2.0, ease: 'sine.inOut' }, 1.6);
+
+  // ===== SCENE 1 (0.0 – 1.5) particles swarm in + title =====
+  tl.set('#s1', { autoAlpha: 1 }, 0)
+    .from('#s1 .kicker', { yPercent: 100, opacity: 0, duration: 0.55 }, 0.1)
+    .from(charsOf('#s1'), {
+      yPercent: 120, rotateX: -90, opacity: 0, filter: 'blur(8px)',
+      stagger: { each: 0.03, from: 'start' }, duration: 0.65
+    }, 0.2)
+    .fromTo(FX, { flow: 2.6 }, { flow: 1, duration: 1.4, ease: 'power2.out' }, 0)
+    // TRANSITION 1 — IMPLODE: title spirals into a point as particles coalesce
+    .to(charsOf('#s1').concat(gsap.utils.toArray('#s1 .kicker')), {
+      scale: 0, rotation: 120, opacity: 0, filter: 'blur(8px)',
+      stagger: { each: 0.02, from: 'edges' }, duration: 0.5, ease: 'power3.in'
+    }, 1.15)
+    .set('#s1', { autoAlpha: 0 });
+
+  // ===== SCENE 2 (1.5 – 2.7) SHADERS — particles reform into the word =====
+  tl.add(() => assignTargets('SHADERS'), 1.45)
+    .to(FX, { gather: 1, glow: 1.6, duration: 0.55, ease: 'power2.out' }, 1.5)
+    .set('#s2', { autoAlpha: 1 }, 2.0)
+    .from(charsOf('#s2'), {
+      scale: 0.2, opacity: 0, filter: 'blur(14px)', y: 30,
+      stagger: { each: 0.04, from: 'center' }, duration: 0.55, ease: 'back.out(1.6)'
+    }, 2.0)
+    .to('#s2 .word', { letterSpacing: '0.08em', duration: 0.6 }, 2.05)
+    .to(charsOf('#s2'), {
+      opacity: 0, filter: 'blur(12px)', scale: 1.3,
+      stagger: 0.02, duration: 0.3, ease: 'power2.in'
+    }, 2.5)
+    .set('#s2', { autoAlpha: 0 });
+
+  // release gather so particles surge before re-locking
+  tl.to(FX, { gather: 0.0, flow: 2.2, duration: 0.3, ease: 'power2.in' }, 2.55);
+
+  // TRANSITION 2 — COLOR-BAND WIPE: neon bands rocket up across the cut
+  const bands = ['#p1','#p2','#p3'];
+  const bandColors = ['var(--cyan)','var(--mag)','var(--violet)'];
+  gsap.set(bands, {
+    visibility: 'visible', left: '-5%', width: '110%', height: '120%',
+    top: 0, skewY: -7,
+    backgroundColor: (i) => bandColors[i],
+    yPercent: 130, mixBlendMode: 'screen', opacity: 0.92
+  });
+  tl.to(bands, { yPercent: -130, duration: 0.6, stagger: 0.08, ease: 'power3.inOut' }, 2.6)
+    .set(bands, { visibility: 'hidden' }, 3.3);
+
+  // ===== SCENE 3 (2.9 – 4.0) PARTICLES — reform again =====
+  tl.add(() => assignTargets('PARTICLES'), 2.85)
+    .to(FX, { gather: 1, glow: 1.7, flow: 1, duration: 0.5, ease: 'power2.out' }, 2.9)
+    .set('#s3', { autoAlpha: 1 }, 3.2)
+    .from(charsOf('#s3'), {
+      yPercent: 130, opacity: 0, skewY: 8, filter: 'blur(6px)',
+      stagger: { each: 0.03, from: 'random' }, duration: 0.55
+    }, 3.2)
+    .to(charsOf('#s3'), {
+      opacity: 0, yPercent: -50, scale: 0.7,
+      stagger: { each: 0.015, from: 'edges' }, duration: 0.32, ease: 'power3.in'
+    }, 3.7)
+    .set('#s3', { autoAlpha: 0 });
+
+  // TRANSITION 3 — IRIS: glowing circle aperture closes & opens
+  gsap.set('#p4', {
+    visibility: 'visible', left: '50%', top: '50%',
+    width: '160vmax', height: '160vmax', xPercent: -50, yPercent: -50,
+    borderRadius: '50%', background: 'transparent',
+    boxShadow: '0 0 0 100vmax #04060f', scale: 1
+  });
+  tl.to('#p4', { scale: 0.0, duration: 0.34, ease: 'power3.in' }, 3.78)
+    .to(FX, { gather: 0.0, flow: 2.0, duration: 0.3 }, 3.8)
+    .to('#p4', { scale: 1, duration: 0.42, ease: 'power3.out' }, 4.12)
+    .set('#p4', { visibility: 'hidden' }, 4.55);
+
+  // ===== SCENE 4 (4.1 – 5.0) 3D =====
+  tl.set('#s4', { autoAlpha: 1 }, 4.1)
+    .to(FX, { swirl: 1.8, glow: 1.3, duration: 0.9, ease: 'sine.inOut' }, 4.1)
+    .from(charsOf('#s4 .mega'), {
+      z: -400, rotateY: 80, opacity: 0, filter: 'blur(6px)',
+      stagger: 0.06, duration: 0.6, ease: 'power3.out'
+    }, 4.12)
+    .from('#s4 .kicker', { yPercent: 100, opacity: 0, duration: 0.5 }, 4.35)
+    .to('#s4 .mega', { rotateY: 18, duration: 0.7, ease: 'sine.inOut' }, 4.45)
+    .to(charsOf('#s4'), {
+      opacity: 0, z: 300, filter: 'blur(10px)',
+      stagger: 0.02, duration: 0.3, ease: 'power2.in'
+    }, 4.78)
+    .set('#s4', { autoAlpha: 0 });
+
+  // ===== SCENE 5 (5.0 – 5.9) IGNITE + PARTICLE BURST =====
+  tl.set('#s5', { autoAlpha: 1 }, 5.0)
+    .from(charsOf('#s5 .mega'), {
+      scale: 2.6, opacity: 0, filter: 'blur(16px)',
+      stagger: { each: 0.03, from: 'center' }, duration: 0.4, ease: 'back.out(2)'
+    }, 5.0)
+    .to('#stage', { x: 6, duration: 0.05, yoyo: true, repeat: 5 }, 5.05)
+    .to('#stage', { x: 0, duration: 0.05 }, 5.35)
+    // BURST: blow particles outward + flash
+    .to(FX, { gather: 0, burst: 1, glow: 2.4, flow: 0.5, duration: 0.4, ease: 'power3.out' }, 5.4)
+    .to('#flash', { opacity: 0.5, duration: 0.07 }, 5.42)
+    .to('#flash', { opacity: 0, duration: 0.35 }, 5.5)
+    .to(charsOf('#s5 .mega'), {
+      scale: 0.2, opacity: 0, filter: 'blur(18px)',
+      stagger: 0.02, duration: 0.35, ease: 'power3.in'
+    }, 5.45)
+    .set('#s5', { autoAlpha: 0 })
+    .to(FX, { burst: 0, duration: 0.5 }, 5.85);
+
+  // ===== SCENE 6 (5.9 – 7.8) WEBGL ANIMATION + iart.ai finale =====
+  // particles reform into WEBGL behind, then settle
+  tl.add(() => assignTargets('WEBGL'), 5.88)
+    .to(FX, { gather: 0.85, glow: 1.8, flow: 0.8, swirl: 1, duration: 0.7, ease: 'power2.out' }, 5.92);
+
+  // finale rings
+  gsap.set('#ring1', { width: '58vmin', height: '58vmin', top: '50%', left: '50%', xPercent: -50, yPercent: -50, autoAlpha: 1 });
+  gsap.set('#ring2', { width: '78vmin', height: '78vmin', top: '50%', left: '50%', xPercent: -50, yPercent: -50, autoAlpha: 1, borderColor: 'rgba(255,45,160,.4)' });
+  tl.fromTo('#ring1', { scale: 0, rotation: -90, autoAlpha: 0 },
+      { scale: 1, rotation: 0, autoAlpha: 1, duration: 0.8, ease: 'power3.out' }, 6.0)
+    .fromTo('#ring2', { scale: 0.4, autoAlpha: 0 },
+      { scale: 1, autoAlpha: 1, duration: 0.9, ease: 'power3.out' }, 6.1)
+    .to('#ring1', { rotation: 22, duration: 1.5, ease: 'sine.inOut' }, 6.3)
+    .to('#ring2', { rotation: -16, duration: 1.5, ease: 'sine.inOut' }, 6.3);
+
+  tl.set('#s6', { autoAlpha: 1 }, 6.05)
+    .from(charsOf('#s6 .mega'), {
+      yPercent: 110, rotateX: -80, opacity: 0, filter: 'blur(8px)',
+      stagger: { each: 0.035, from: 'start' }, duration: 0.7, ease: 'back.out(1.6)'
+    }, 6.1)
+    .from(charsOf('#s6 .brandmark'), {
+      scale: 0.3, opacity: 0, filter: 'blur(10px)',
+      stagger: { each: 0.05, from: 'center' }, duration: 0.7, ease: 'back.out(1.8)'
+    }, 6.55)
+    .from('#s6 .brandmark .mag', { scale: 0, duration: 0.5, ease: 'back.out(3)' }, 7.0)
+    .to('#s6 .brandmark .mag', { scale: 1.3, duration: 0.45, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 7.3)
+    .to('#s6 .brandmark', { textShadow: '0 0 40px rgba(234,252,255,.95), 0 0 90px rgba(138,92,255,.6)', duration: 1.0, ease: 'sine.inOut' }, 7.1);
+
+  // final glow swell + soft flash on brand reveal
+  tl.to(FX, { glow: 2.2, gather: 0.55, duration: 1.0, ease: 'sine.inOut' }, 6.5)
+    .to('#flash', { opacity: 0.3, duration: 0.06 }, 6.05)
+    .to('#flash', { opacity: 0, duration: 0.3 }, 6.11);
+
+  tl.to({}, { duration: 0.5 }); // hold
+  return tl;
+}
+
+let master = build();
+
+document.getElementById('replay').addEventListener('click', () => {
+  // restart + reseed the canvas effect
+  seedParticles();
+  assignTargets('SHADERS');
+  burstSeeded = false;
+  master.kill();
+  gsap.set('.scene', { clearProps: 'all', autoAlpha: 0 });
+  gsap.set(['.ring'], { autoAlpha: 0 });
+  gsap.set('#stage', { x: 0 });
+  master = build();
+  master.restart();
+});
+</script>
+</body>
+</html>

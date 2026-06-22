@@ -2,6 +2,8 @@
 
 > WebGL animation skills for AI coding agents — Three.js scenes, GLSL shaders, and particle systems, off the core 2D/Lottie path.
 
+![WebGL Animation Skills — animated showcase](./showcase.gif)
+
 ## Install
 
 ```bash
