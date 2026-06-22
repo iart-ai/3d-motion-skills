@@ -150,6 +150,8 @@ For a full-screen pass with a plain camera, write the vertex shader to output `p
 
 ## Deliver & verify (standalone HTML)
 
+> **Packaged helper** (`scripts/`): `scripts/seek-shot.sh anim.html 0 1.5 3` freezes the `?t=N` harness and screenshots each moment; `scripts/contact-sheet.sh sheet.png frame-*.png` tiles them for one-glance review. See `scripts/README.md`.
+
 For a self-contained shader (gradient/noise background, transition, generative loop) the deliverable is **one HTML file that opens directly in a browser** — Three.js from a CDN via an importmap, one full-screen quad, one render loop, no build step. A single file is the right tier for a shader; don't reach for a bundler when one file does the job.
 
 **Output contract:**

@@ -168,6 +168,8 @@ scene.add(new THREE.Points(geo, mat));
 
 ## Deliver & verify (standalone HTML)
 
+> **Packaged helper** (`scripts/`): `scripts/seek-shot.sh anim.html 0 1.5 3` freezes the `?t=N` harness and screenshots each moment; `scripts/contact-sheet.sh sheet.png frame-*.png` tiles them for one-glance review. See `scripts/README.md`.
+
 For a self-contained particle effect (constellation background, confetti burst, flow field, GPU points) the deliverable is **one HTML file that opens directly in a browser** — canvas 2D inline, or Three.js from a CDN via an importmap for GPU `Points`, one render loop, no build step. A single file is the right tier; don't reach for a bundler when one file does the job.
 
 **Output contract:**
