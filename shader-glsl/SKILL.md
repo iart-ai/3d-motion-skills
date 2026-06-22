@@ -148,6 +148,49 @@ For a full-screen pass with a plain camera, write the vertex shader to output `p
 - Avoid `if`/branches in hot paths; prefer `mix`/`step`/`smoothstep`. Minimize `texture2D` calls; avoid dependent texture reads where possible.
 - WebGL2/GLSL ES 3.00 enables `texelFetch`, integer ops, and `textureLod`; declare `#version 300 es` and use `in`/`out`/`fragColor`.
 
+## Deliver & verify (standalone HTML)
+
+For a self-contained shader (gradient/noise background, transition, generative loop) the deliverable is **one HTML file that opens directly in a browser** — Three.js from a CDN via an importmap, one full-screen quad, one render loop, no build step. A single file is the right tier for a shader; don't reach for a bundler when one file does the job.
+
+**Output contract:**
+- One `.html`: importmap pins `three` to a CDN; the GLSL string, `ShaderMaterial`, full-screen quad, and render loop in one inline `<script type="module">`.
+- The shader is a pure function of uniforms — drive everything from `u_time` (and `u_progress` for transitions). All animation flows through one uniform you can pin.
+- Any in-shader randomness already comes from a deterministic `hash(uv)` — no per-frame seeding needed; just don't feed it wall-clock outside `u_time`.
+
+**Seek/freeze harness — render ONE frame at a fixed time for screenshots.** `?t=N` sets `u_time` (and optionally `u_progress`) to `N`, renders one frame, and stops the loop — a deterministic still.
+
+```html
+<script type="module">
+  // ... uniforms, material, full-screen quad, renderer ...
+  const t = new URLSearchParams(location.search).get("t");
+  function frame(time) {
+    uniforms.u_time.value = time;
+    uniforms.u_progress && (uniforms.u_progress.value = Math.min(time, 1)); // transitions
+    renderer.render(scene, camera);
+  }
+  if (t !== null) {
+    frame(parseFloat(t));            // one fixed frame, no loop
+    window.__ready = true;
+  } else {
+    const clock = new THREE.Clock();
+    renderer.setAnimationLoop(() => frame(clock.getElapsedTime()));
+  }
+</script>
+```
+
+**Verify loop — render → freeze → screenshot → check:** open at three instants — start, mid, end (`?t=0`, `?t=<mid>`, `?t=<end>`; for a transition use `u_progress` 0 / 0.5 / 1) — screenshot each, and check both **fidelity** (matches the brief) and **artifacts**: a **black/blank canvas = shader compile or parse error** (read the console for the GLSL log), banding, NaN blowout (white/garbage pixels from `pow`/`log` of negatives), missing texture for transitions (CDN/asset 404). WebGL needs a GPU context; Playwright/Chromium supplies one (swiftshader) headless.
+
+```bash
+npx playwright screenshot --wait-for-timeout=600 "file://$PWD/shader.html?t=2.0" frame-mid.png
+```
+
+**Before you finish:**
+1. Canvas renders — not black/blank, no shader-compile or console errors, no CDN 404s.
+2. `?t=N` freezes a reproducible frame (same N → same pixels; `u_time` is the only clock).
+3. Screenshotted at start / mid / end (or progress 0/0.5/1) — matches the brief, no banding/NaN/black.
+4. Disposed and leak-free if embedded in an SPA (`material.dispose()`, `geometry.dispose()`, `renderer.dispose()`, stop the loop).
+5. `prefers-reduced-motion` honored — freeze `u_time` or slow the animation where motion is decorative.
+
 ## Quick reference
 
 | Goal | Primitive |

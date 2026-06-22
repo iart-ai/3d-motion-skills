@@ -189,6 +189,49 @@ For shared resources reused across mounts, set `dispose={null}` on the JSX objec
 
 See `references/resource-disposal.md` for the full disposal utility (all map slots, shader uniforms, render targets, skinned meshes), EffectComposer/render-target disposal, a `renderer.info` leak-test harness, R3F cleanup recipes (refs, textures, GLTF cache clearing, `<DisposeOnUnmount>`), and HMR safety.
 
+## Deliver & verify (standalone HTML)
+
+For a self-contained 3D scene (hero, WebGL background, micro-scene) the deliverable is **one HTML file that opens directly in a browser** — Three.js pulled from a CDN via an importmap, one render loop, no build step. A single file is the right tier for a scene; don't reach for a bundler when one file does the job.
+
+**Output contract:**
+- One `.html`: importmap pins `three` + `three/addons` to a CDN; your scene and the render loop in one inline `<script type="module">`.
+- Drive ALL motion from one source of truth — `clock.getElapsedTime()` (and `mixer`/camera read from it). No `Date.now()`, no per-object wall-clock.
+- Seed any randomness (instance placement, jitter) from a fixed seed so frames reproduce.
+
+**Seek/freeze harness — render ONE frame at a fixed time for screenshots.** `?t=N` forces elapsed time to `N` seconds, advances the scene to that instant, renders once, and stops the loop — a deterministic still.
+
+```html
+<script type="module">
+  // ... build scene, camera, renderer, clock, mixer ...
+  const t = new URLSearchParams(location.search).get("t");
+  function frame(elapsed) {            // pure: scene state is a function of elapsed
+    mesh.rotation.y = elapsed * 0.5;
+    if (mixer) { mixer.setTime(elapsed); }   // setTime is absolute, not delta
+    renderer.render(scene, camera);
+  }
+  if (t !== null) {
+    frame(parseFloat(t));             // one fixed frame, no loop
+    window.__ready = true;
+  } else {
+    const clock = new THREE.Clock();
+    renderer.setAnimationLoop(() => frame(clock.getElapsedTime()));
+  }
+</script>
+```
+
+**Verify loop — render → freeze → screenshot → check:** open the file at three instants — start, mid, end (`?t=0`, `?t=<mid>`, `?t=<end>` for an animated clip/loop) — screenshot each, and check both **fidelity** (matches the brief) and **artifacts**: a **black canvas = parse/init error** (check the console), clipped/off-frame geometry, NaN positions (objects vanish), missing model/texture (CDN 404). WebGL needs a GPU context; Playwright/Chromium supplies one (swiftshader) headless.
+
+```bash
+npx playwright screenshot --wait-for-timeout=600 "file://$PWD/scene.html?t=1.5" frame-mid.png
+```
+
+**Before you finish:**
+1. Canvas actually renders — not blank, no console/WebGL errors, no CDN 404s.
+2. `?t=N` freezes a reproducible frame (same N → same pixels; randomness seeded).
+3. Screenshotted at start / mid / end — matches the brief, no clipping/NaN/black.
+4. Disposed and leak-free if embedded in an SPA (`setAnimationLoop(null)` + dispose; see disposal section).
+5. `prefers-reduced-motion` honored — slow/halt rotation or auto-play where relevant.
+
 ## Quick reference
 
 | Goal | API |

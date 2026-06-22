@@ -166,6 +166,49 @@ scene.add(new THREE.Points(geo, mat));
 ```
 `AdditiveBlending` + `depthWrite: false` gives the glowing-particle look. `discard` on `gl_PointCoord` distance makes square points round. For per-particle data (life, seed), add custom attributes and read them in the shader.
 
+## Deliver & verify (standalone HTML)
+
+For a self-contained particle effect (constellation background, confetti burst, flow field, GPU points) the deliverable is **one HTML file that opens directly in a browser** — canvas 2D inline, or Three.js from a CDN via an importmap for GPU `Points`, one render loop, no build step. A single file is the right tier; don't reach for a bundler when one file does the job.
+
+**Output contract:**
+- One `.html`: for canvas, the simulation + 2D draw loop in one inline `<script>`; for GPU points, importmap pins `three` to a CDN with the `Points` setup inline.
+- Drive the sim from one accumulated `time` (sum of clamped `dt`, or `clock.getElapsedTime()` / `u_time` for GPU). No `Date.now()` scattered per particle.
+- **Seed the RNG** — replace bare `Math.random()` with a seeded PRNG (e.g. mulberry32) so spawn positions, angles, and bursts reproduce frame-for-frame.
+
+**Seek/freeze harness — advance to a fixed time, render ONE frame for screenshots.** `?t=N` re-seeds, steps the sim deterministically to `N` seconds with a fixed timestep, renders once, and stops the loop.
+
+```html
+<script>
+  let rng = mulberry32(1234);                 // fixed seed → reproducible
+  const particles = spawn(() => rng());
+  function render() { /* draw particles to canvas / renderer.render(...) */ }
+  const t = new URLSearchParams(location.search).get("t");
+  if (t !== null) {
+    const step = 1 / 60, end = parseFloat(t);
+    for (let s = 0; s < end; s += step) update(step);  // fixed-step to t
+    render();                                  // one frozen frame
+    window.__ready = true;
+  } else {
+    let prev = performance.now();
+    (function loop(now){ update(Math.min((now-prev)/1000, 1/30)); prev = now;
+      render(); requestAnimationFrame(loop); })(prev);
+  }
+</script>
+```
+
+**Verify loop — render → freeze → screenshot → check:** open at three instants — start, mid, settle (`?t=0`, `?t=<mid>`, `?t=<end>`; for a burst, t≈0 spawn / t≈0.5 spread / t≈1.5 settle) — screenshot each, and check both **fidelity** (matches the brief) and **artifacts**: a **blank canvas = parse/init error** (check the console), particles escaping the frame (clamp/wrap missing), NaN positions (everything vanishes), all particles bunched at the origin (RNG not wired). For GPU points, WebGL needs a GPU context; Playwright/Chromium supplies one (swiftshader) headless.
+
+```bash
+npx playwright screenshot --wait-for-timeout=600 "file://$PWD/particles.html?t=1.0" frame-mid.png
+```
+
+**Before you finish:**
+1. Canvas renders particles — not blank, no console/WebGL errors, no CDN 404s.
+2. `?t=N` freezes a reproducible frame (seeded RNG + fixed timestep → same N → same pixels).
+3. Screenshotted at start / mid / settle — matches the brief, no escaped/NaN/origin-bunched particles.
+4. Disposed and leak-free if embedded in an SPA (cancel the rAF loop; for GPU, dispose geometry/material/renderer).
+5. `prefers-reduced-motion` honored — fewer particles or a static field where motion is decorative.
+
 ## Quick reference
 
 | Effect | Recipe |
