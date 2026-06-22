@@ -1,4 +1,4 @@
-# Three.js Motion (3D / WebGL)
+# Three.js Animation
 
 Build real-time 3D motion for the web — animated scenes, camera moves, GLTF playback, instancing, scroll-linked 3D, and React Three Fiber — optimized for smooth 60fps and leak-free GPU disposal. For web developers building 3D hero sections, product viewers, and interactive backgrounds who need them to stay fast and not leak VRAM.
 

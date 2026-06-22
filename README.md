@@ -15,7 +15,7 @@ Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 | Skill | What it does |
 |-------|--------------|
 | [shader-glsl](./shader-glsl) | Write GLSL fragment shaders — gradients, noise/fbm, SDFs, domain warping, image transitions, and Three.js ShaderMaterial wiring. |
-| [threejs-motion](./threejs-motion) | Build web 3D motion — scenes, camera moves, GLTF clips, instancing, scroll-linked 3D, React Three Fiber, and leak-free GPU disposal. |
+| [threejs-animation](./threejs-animation) | Build web 3D motion — scenes, camera moves, GLTF clips, instancing, scroll-linked 3D, React Three Fiber, and leak-free GPU disposal. |
 | [particle-system](./particle-system) | Drive emergent motion — confetti/snow/smoke/sparks, flow fields, curl noise, connected-dot networks, and GPU `Points` shaders. |
 
 *Need fully controllable, repeatable motion graphics instead — exact text and numbers, brand-locked, one-click edits? [iart.ai](https://iart.ai) produces these natively from a prompt or data.*
@@ -35,7 +35,7 @@ Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 ## Skills
 
 - shader-glsl
-- threejs-motion
+- threejs-animation
 - particle-system
 
 ## Topics
