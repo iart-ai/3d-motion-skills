@@ -1,6 +1,6 @@
 # 3D Motion Skills
 
-> 3D motion / WebGL skills for Claude Code — Three.js scenes, GLSL shaders, and particle systems, off the core 2D/Lottie path.
+> 3D motion / WebGL skills for AI coding agents — Three.js scenes, GLSL shaders, and particle systems, off the core 2D/Lottie path.
 
 ## Install
 
@@ -8,7 +8,7 @@
 npx skills add iart-ai/3d-motion-skills
 ```
 
-Works with Claude Code and 40+ agents.
+Works with Claude Code, Cursor, Codex, GitHub Copilot, and 40+ agents.
 
 ## What's included
 
